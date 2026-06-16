@@ -1,5 +1,5 @@
 // JavaScript simples do projeto
-// Funções usadas: menu hamburger, página ativa, botão voltar ao topo e aviso do formulário.
+// Menu hamburger, link ativo, botão topo, formulário, galeria ampliável e barra de leitura.
 
 document.addEventListener('DOMContentLoaded', function () {
     const botaoMenu = document.querySelector('.menu-toggle');
@@ -37,7 +37,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 3) Botão voltar ao topo criado via JavaScript
+    // 3) Marca links externos com classe visual
+    document.querySelectorAll('main a[href^="http"]').forEach(function (link) {
+        link.classList.add('link-externo');
+        link.setAttribute('rel', 'noopener noreferrer');
+    });
+
+    // 4) Botão voltar ao topo criado via JavaScript
     const botaoTopo = document.createElement('button');
     botaoTopo.textContent = '↑ Topo';
     botaoTopo.className = 'botao-topo';
@@ -57,7 +63,18 @@ document.addEventListener('DOMContentLoaded', function () {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // 4) Interação simples no formulário de contato, sem enviar dados reais
+    // 5) Barra de progresso de leitura criada via JavaScript
+    const barra = document.createElement('div');
+    barra.className = 'barra-progresso';
+    document.body.appendChild(barra);
+
+    window.addEventListener('scroll', function () {
+        const alturaTotal = document.documentElement.scrollHeight - window.innerHeight;
+        const progresso = alturaTotal > 0 ? (window.scrollY / alturaTotal) * 100 : 0;
+        barra.style.width = progresso + '%';
+    });
+
+    // 6) Interação simples no formulário de contato, sem enviar dados reais
     const formulario = document.querySelector('form');
     if (formulario) {
         const aviso = document.createElement('p');
@@ -68,6 +85,50 @@ document.addEventListener('DOMContentLoaded', function () {
         formulario.addEventListener('submit', function (evento) {
             evento.preventDefault();
             aviso.textContent = 'Mensagem registrada apenas como teste do projeto acadêmico.';
+        });
+    }
+
+    // 7) Galeria com imagem ampliável, sem trocar os caminhos das imagens
+    const galeria = document.querySelector('.galeria');
+    if (galeria) {
+        const dica = document.createElement('p');
+        dica.className = 'dica-galeria';
+        dica.textContent = 'Clique em uma imagem para ampliar. As imagens continuam usando os mesmos arquivos e links do projeto.';
+        galeria.parentNode.insertBefore(dica, galeria);
+
+        const modal = document.createElement('div');
+        modal.className = 'modal-galeria';
+        modal.innerHTML = '<div class="modal-conteudo"><button class="fechar-modal" type="button">Fechar</button><img src="" alt=""><p class="modal-legenda"></p></div>';
+        document.body.appendChild(modal);
+
+        const imgModal = modal.querySelector('img');
+        const legendaModal = modal.querySelector('.modal-legenda');
+        const fecharModal = modal.querySelector('.fechar-modal');
+
+        galeria.querySelectorAll('img').forEach(function (imagem) {
+            imagem.addEventListener('click', function () {
+                imgModal.src = imagem.currentSrc || imagem.src;
+                imgModal.alt = imagem.alt;
+                const legenda = imagem.closest('figure').querySelector('figcaption');
+                legendaModal.textContent = legenda ? legenda.textContent : imagem.alt;
+                modal.classList.add('aberto');
+            });
+        });
+
+        fecharModal.addEventListener('click', function () {
+            modal.classList.remove('aberto');
+        });
+
+        modal.addEventListener('click', function (evento) {
+            if (evento.target === modal) {
+                modal.classList.remove('aberto');
+            }
+        });
+
+        document.addEventListener('keydown', function (evento) {
+            if (evento.key === 'Escape') {
+                modal.classList.remove('aberto');
+            }
         });
     }
 });
